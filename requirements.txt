@@ -1,0 +1,4 @@
+tensorflow
+numpy
+groq
+python-dotenv

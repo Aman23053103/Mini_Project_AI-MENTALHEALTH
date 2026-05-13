@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mental Health Chat – Serenity Mindspace</title>
+    <meta name="description" content="Chat with our compassionate AI wellness companion 24/7. First 10 messages free.">
+    <meta name="theme-color" content="#7A9B76">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <script src="{{ url_for('static', filename='js/utils.js') }}" defer></script>
+
+    <style>
+        body { padding-top: 80px; }
+        @media(max-width:768px){ body{ padding-top:70px; } }
+    </style>
+</head>
+<body>
+    <header class="site-header" id="header">
+        <nav class="nav-container">
+            <a href="{{ url_for('index') }}" class="logo">
+                <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 10 C30 10 20 25 20 40 C20 55 30 65 40 75 C45 80 47 85 50 90 C53 85 55 80 60 75 C70 65 80 55 80 40 C80 25 70 10 50 10 Z M50 50 C40 50 35 45 35 40 C35 35 40 30 50 30 C60 30 65 35 65 40 C65 45 60 50 50 50 Z"/>
+                </svg>
+                <span>Serenity Mindspace</span>
+            </a>
+
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
+                <li><a href="{{ url_for('specialists') }}" class="nav-link">Specialists</a></li>
+                <li><a href="{{ url_for('store') }}" class="nav-link">Pricing</a></li>
+                <li><a href="{{ url_for('ai_chat') }}" class="nav-link active">AI Chat</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <button class="dark-mode-toggle" data-action="toggle-dark" title="Toggle dark mode"><span data-dark-icon>🌙</span></button>
+                <a href="{{ url_for('login_page') }}" class="btn btn-outline" id="navLoginBtn">Login</a>
+                <a href="{{ url_for('login_page') }}?signup=true" class="btn btn-primary" id="navSignupBtn">Sign Up</a>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline" id="navDashBtn" style="display:none">Dashboard</a>
+                <button class="btn btn-ghost" data-action="logout" id="navLogoutBtn" style="display:none">Logout</button>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+        </nav>
+    </header>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-info">
+                <div style="display: flex; align-items: center; gap: var(--space-md);">
+                    <a href="{{ url_for('choose_support') }}" class="btn btn-ghost" style="padding: var(--space-sm);">←</a>
+                    <div class="chat-avatar" style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        🤖
+                    </div>
+                    <div class="chat-details">
+                        <h3>AI Assistant</h3>
+                        <div class="chat-status">
+                            <div class="status-indicator"></div>
+                            Always available
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: var(--space-md);">
+                <div class="badge badge-primary" id="messagesLeft">10 free messages left</div>
+                <div class="token-display" id="headerTokens">
+                    <svg class="token-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+                    </svg>
+                    <span id="chatTokenCount" data-token-display>100</span>
+                </div>
+                <button class="btn btn-ghost" onclick="toggleMenu()">⋮</button>
+            </div>
+        </div>
+
+        <div style="background: rgba(122, 155, 118, 0.1); padding: var(--space-md); text-align: center; border-bottom: 1px solid var(--color-sand);">
+            <span style="font-size: var(--text-sm); color: var(--color-primary-dark);">
+                ✓ AI has reviewed your wellness assessment and is ready to support you
+            </span>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message">
+                <div class="message-avatar" style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                    🤖
+                </div>
+                <div class="message-content">
+                    <div class="message-text">
+                        Hello! I'm your AI wellness companion. I've reviewed your assessment and I'm here to support you. I understand you've been experiencing some challenges, and I want you to know that reaching out is a sign of strength.
+                        <br><br>
+                        How are you feeling right now? Would you like to talk about what brought you here today?
+                    </div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: var(--bg-elevated); padding: var(--space-md); border-top: 1px solid var(--color-sand); display: flex; gap: var(--space-sm); flex-wrap: wrap;">
+            <button class="btn btn-sm btn-outline" onclick="sendQuickMessage('Im feeling overwhelmed')">I'm feeling overwhelmed</button>
+            <button class="btn btn-sm btn-outline" onclick="sendQuickMessage('Need breathing exercise')">Breathing exercise</button>
+            <button class="btn btn-sm btn-outline" onclick="sendQuickMessage('Feeling anxious')">Feeling anxious</button>
+            <a href="{{ url_for('specialists') }}" class="btn btn-sm" style="background: var(--color-accent); color: var(--color-dark);">
+                Talk to Human Specialist
+            </a>
+        </div>
+
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <textarea
+                    id="messageInput"
+                    class="chat-input"
+                    placeholder="Type your message..."
+                    rows="1"
+                    onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"
+                ></textarea>
+                <button class="chat-send-btn" onclick="sendMessage()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="optionsMenu" style="display: none;">
+        <div class="modal">
+            <button class="modal-close" onclick="toggleMenu()">✕</button>
+            <div class="modal-header">
+                <h3 class="modal-title">Chat Options</h3>
+            </div>
+            <div class="modal-body">
+                <button class="btn btn-outline btn-full" onclick="exportChat()" style="margin-bottom: var(--space-md);">📄 Export Transcript</button>
+                <button class="btn btn-outline btn-full" onclick="clearChat()" style="margin-bottom: var(--space-md);">🗑️ Clear Chat History</button>
+                <a href="{{ url_for('store') }}" class="btn btn-primary btn-full">💎 Buy More Tokens</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="tokenWarning" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon">⚠️</div>
+                <h3 class="modal-title">Low on Tokens</h3>
+                <p class="modal-subtitle">You have less than 20 tokens remaining</p>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); text-align: center;">
+                    Purchase more tokens to continue chatting with the AI assistant, or switch to a specialist.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="document.getElementById('tokenWarning').style.display='none'">Continue</button>
+                <a href="{{ url_for('store') }}" class="btn btn-primary">Buy Tokens</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateBadge();
+            updateTokenDisplay();
+            checkTokenWarning();
+
+            const saved = typeof getChatHistory === 'function' ? getChatHistory('ai_session') : [];
+            if (saved.length) {
+                const container = document.getElementById('chatMessages');
+                container.innerHTML = '';
+                saved.forEach(m => renderMessage(m.text, m.sender, m.timestamp, m.emotion, m.risk, m.confidence));
+                chatHistory = saved.map(m => ({
+                    role: m.sender === 'user' ? 'user' : 'model',
+                    parts: [{ text: m.text }]
+                }));
+            }
+
+            const ta = document.getElementById('messageInput');
+            ta.addEventListener('input', function () {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        });
+
+        function updateTokenDisplay() {
+            const el = document.getElementById('chatTokenCount');
+            if (el && typeof getTokens === 'function') el.textContent = getTokens();
+        }
+
+        function updateBadge() {
+            const left = typeof getFreeMessagesLeft === 'function' ? getFreeMessagesLeft() : 10;
+            const badge = document.getElementById('messagesLeft');
+            if (!badge) return;
+            badge.textContent = left > 0 ? `${left} free messages left` : '5 tokens / message';
+            badge.style.background = left > 0 ? 'var(--color-primary-light)' : 'var(--color-secondary-light)';
+        }
+
+        function checkTokenWarning() {
+            if (typeof getTokens === 'function' && getTokens() < 20) {
+                const w = document.getElementById('tokenWarning');
+                if (w) w.style.display = 'flex';
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (typeof detectCrisisKeywords === 'function' && detectCrisisKeywords(text)) {
+                if (typeof showCrisisResources === 'function') showCrisisResources();
+            }
+
+            const count = typeof incrementMessageCount === 'function' ? incrementMessageCount() : 1;
+            if (count > 10) {
+                if (typeof deductTokens === 'function' && !deductTokens(5)) {
+                    if (typeof showToast === 'function') showToast('Not enough tokens! Please top up to continue.', 'error');
+                    localStorage.setItem('aiMessageCount', (count - 1).toString());
+                    return;
+                }
+                updateTokenDisplay();
+                checkTokenWarning();
+            }
+            updateBadge();
+
+            const ts = new Date().toISOString();
+            renderMessage(text, 'user', ts);
+            input.value = '';
+            input.style.height = 'auto';
+
+            chatHistory.push({ role: 'user', parts: [{ text }] });
+            persistChatHistory(text, 'user', ts);
+
+            showTyping();
+
+            try {
+                const reply = await callGeminiAPI(text);
+                hideTyping();
+                const replyTs = new Date().toISOString();
+                renderMessage(reply.text, 'assistant', replyTs, reply.emotion, reply.risk, reply.confidence);
+                chatHistory.push({ role: 'model', parts: [{ text: reply.text }] });
+                persistChatHistory(reply.text, 'assistant', replyTs, reply.emotion, reply.risk, reply.confidence);
+            } catch (err) {
+                hideTyping();
+                console.error('Chat API error:', err);
+                const fallback = getFallbackResponse(text);
+                const replyTs = new Date().toISOString();
+                renderMessage(fallback, 'assistant', replyTs);
+                chatHistory.push({ role: 'model', parts: [{ text: fallback }] });
+                persistChatHistory(fallback, 'assistant', replyTs);
+            }
+        }
+
+        async function callGeminiAPI(userMessage) {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: userMessage })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Chat request failed');
+            }
+
+            return {
+                text: data.response || "I'm here with you. Tell me more.",
+                emotion: data.emotion || null,
+                risk: data.risk || null,
+                confidence: data.confidence || null
+            };
+        }
+
+        function getFallbackResponse(msg) {
+            const m = msg.toLowerCase();
+            if (m.includes('overwhelm') || m.includes('stress'))
+                return "I hear that you're feeling overwhelmed — that's completely valid. Try the 5-4-3-2-1 grounding technique: name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, and 1 you can taste. It gently brings your mind back to the present. Would you like to talk more about what's weighing on you?";
+            if (m.includes('anxi'))
+                return "Anxiety can feel really heavy. One thing that often helps is box breathing — breathe in for 4 counts, hold for 4, breathe out for 4, hold for 4. Repeat a few times. I'm here with you. Would you like to talk through what's making you anxious?";
+            if (m.includes('sad') || m.includes('depress'))
+                return "I'm sorry you're going through this. Sadness is a real and valid feeling, and reaching out the way you just did takes courage. You're not alone. Would you like to share more about what's been happening?";
+            if (m.includes('breath'))
+                return "Let's breathe together. Inhale slowly through your nose for 4 counts... hold for 4... exhale through your mouth for 6 counts. Repeat 3-5 times. This activates your body's natural calming response. How do you feel after trying that?";
+            return "Thank you for sharing that with me. Your feelings are completely valid, and I'm here to support you. Would you like to tell me more about what's been on your mind?";
+        }
+
+        function renderMessage(text, sender, timestamp, emotion = null, risk = null, confidence = null) {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = 'message ' + sender;
+            const time = new Date(timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            let extraHTML = '';
+            if (sender !== 'user' && emotion) {
+                extraHTML = `
+                    <div style="font-size: 0.75rem; opacity: 0.65; margin-top: 6px;">
+                        Detected: [${emotion}] | Risk: ${risk}${confidence ? ` | Confidence: ${confidence}` : ''}
+                    </div>
+                `;
+            }
+
+            if (sender === 'user') {
+                div.innerHTML = `
+                    <div class="message-avatar" style="background:var(--color-primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;">You</div>
+                    <div class="message-content">
+                        <div class="message-text">${escapeHtml(text)}</div>
+                        <div class="message-time">${time}</div>
+                    </div>`;
+            } else {
+                div.innerHTML = `
+                    <div class="message-avatar" style="background:linear-gradient(135deg,var(--color-primary),var(--color-primary-dark));display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🤖</div>
+                    <div class="message-content">
+                        <div class="message-text">${escapeHtml(text)}</div>
+                        ${extraHTML}
+                        <div class="message-time">${time}</div>
+                    </div>`;
+            }
+
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTyping() {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.id = 'typingIndicator';
+            div.className = 'message';
+            div.innerHTML = `
+                <div class="message-avatar" style="background:linear-gradient(135deg,var(--color-primary),var(--color-primary-dark));display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🤖</div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTyping() {
+            const t = document.getElementById('typingIndicator');
+            if (t) t.remove();
+        }
+
+        let _chatMessages = [];
+        function persistChatHistory(text, sender, timestamp, emotion = null, risk = null, confidence = null) {
+            _chatMessages.push({ text, sender, timestamp, emotion, risk, confidence });
+            if (typeof saveChatHistory === 'function') saveChatHistory('ai_session', _chatMessages);
+        }
+
+        function sendQuickMessage(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('optionsMenu');
+            menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function exportChat() {
+            const msgs = document.querySelectorAll('.message');
+            let transcript = '=== Serenity Mindspace - AI Chat Transcript ===\nDate: ' + new Date().toLocaleDateString() + '\n' + '─'.repeat(50) + '\n\n';
+            msgs.forEach(m => {
+                const sender = m.classList.contains('user') ? 'You' : 'Serenity AI';
+                const textEl = m.querySelector('.message-text');
+                const timeEl = m.querySelector('.message-time');
+                if (textEl && timeEl) transcript += '[' + timeEl.textContent + '] ' + sender + ': ' + textEl.textContent + '\n\n';
+            });
+            const blob = new Blob([transcript], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'serenity-chat-' + Date.now() + '.txt';
+            a.click();
+            toggleMenu();
+            if (typeof showToast === 'function') showToast('Transcript exported!', 'success');
+        }
+
+        function clearChat() {
+            const doClear = () => {
+                const container = document.getElementById('chatMessages');
+                container.innerHTML = `
+                    <div class="message">
+                        <div class="message-avatar" style="background:linear-gradient(135deg,var(--color-primary),var(--color-primary-dark));display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🤖</div>
+                        <div class="message-content">
+                            <div class="message-text">Chat cleared. How can I support you today?</div>
+                            <div class="message-time">Just now</div>
+                        </div>
+                    </div>`;
+                if (typeof resetMessageCount === 'function') resetMessageCount();
+                _chatMessages = [];
+                chatHistory = [];
+                if (typeof saveChatHistory === 'function') saveChatHistory('ai_session', []);
+                updateBadge();
+                toggleMenu();
+                if (typeof showToast === 'function') showToast('Chat history cleared.', 'info');
+            };
+
+            if (typeof showConfirmModal === 'function') {
+                showConfirmModal('Clear all chat history? This cannot be undone.', 'Clear Chat', doClear);
+            } else {
+                if (confirm('Clear all chat history? This cannot be undone.')) doClear();
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey && document.activeElement.id === 'messageInput') {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+
+    <div style="text-align:center;padding:var(--space-md);font-size:var(--text-xs);color:var(--text-tertiary);border-top:1px solid var(--color-sand);">
+        Not a substitute for emergency care &nbsp;|&nbsp;
+        <a href="{{ url_for('privacy') }}" style="color:var(--color-primary);">Privacy</a>
+        &nbsp;|&nbsp;
+        <a href="tel:9152987821" style="color:var(--color-error);">iCall: 9152987821</a>
+    </div>
+</body>
+</html>
